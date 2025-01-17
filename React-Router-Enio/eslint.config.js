@@ -15,6 +15,7 @@ export default [
         ecmaVersion: 'latest',
         ecmaFeatures: { jsx: true },
         sourceType: 'module',
+        project: './tsconfig.json'
       },
     },
     settings: { react: { version: '18.3' } },
