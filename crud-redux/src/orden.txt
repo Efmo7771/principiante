@@ -1,0 +1,12 @@
+main
+App
+ListaUsuario
+
+slice.ts  // Se configura el slice users (los reducer y el estado)
+index.ts // Se configura el store
+store.ts // hook para typear useSelector y el useDispatch
+userAction.ts // hook donde se emsamblan los dispatch
+
+slice=> index=> main     
+index=> store => ListaUsuario 
+index=> store => userAction

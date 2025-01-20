@@ -1,0 +1,60 @@
+Comenzamos instalando pnpm 
+
+>npm install -g pnpm@latest-10
+
+Creamos el proyecto con
+
+>pnpm create vite@latest
+
+MIdu quiere utilizar rome en lugar de eslint y pretties
+
+así que lo instalamos tambien:
+
+>pnpm add rome -d // SE TARDO BASTANTE ES MUY GRANDE
+seguido de:
+>pmpm rome init
+Se configura el archivo rome.json
+
+	"$schema": "./node_modules/rome/configuration_schema.json", Esta linea se tuvo que escribir ya que aparecia otra cosa
+
+	"organizeImports": {
+		"enabled": true     // Esto lo puso midu en true estaba en false y agregó:
+        	},
+	"formatter": {
+		"enable": true
+	}
+Luego de instalar  rome extension, desactivo la de pretties y la de eslint (que por cierto nunca la instale)
+
+luego creo una carpeta a nivel  de public,src,node_modules llamada 
+.vscode
+y dentro creo un archivo:
+settings.json 
+donde escribió:
+{
+    "editor.formatOnSave": true,
+    "editor.codeActionsOnSave": {
+        "source.fixAll.rome": true,   /// Aqui hubo problemas
+        "source.organizeImports": true 
+    },
+    "[javascript]": {
+        "editor.defaultFormatter": "rome.rome"
+    },
+    "[javascriptreact]": {
+        "editor.defaultFormatter": "rome.rome"
+    },
+    "[typescript]": {
+        "editor.defaultFormatter": "rome.rome"
+    },
+    "[typescriptreact]": {
+        "editor.defaultFormatter": "rome.rome"
+    },
+}
+
+instalo tailwind // problemas con la configuración
+
+instalo redux
+
+pnpm install @reduxjs/toolkit react-redux -E
+
+
+
