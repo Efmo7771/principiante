@@ -1,32 +1,27 @@
-import {  useMemo,  useState } from "react"
+import { useEffect, useMemo, useRef, useState } from "react"
 import "./App.css";
 import { UsersList } from "./componentes/UsersList";
-import { SortBay, type User } from "./assets/typesParseados";
-import {  useQuery } from "@tanstack/react-query";
+import { SortBay, User } from "./assets/typesParseados";
 
-const fetchUsers =  async (page:number)=>{
-  const response = await fetch(`https://randomuser.me/api?results=8&seed=enio&page=${page}`);
-  if (!response.ok) throw new Error('Error en el FETCH');
-  const response_1 = await  response.json();
-  return {
-    response: response_1.results,
-  };
+
+function fetchUsers(pagina:number){
+  return fetch(`https://randomuser.me/api?results=8&seed=enio&page=${pagina}`) 
+		.then(async response=> {
+      if (!response.ok) throw new Error('Error en el FETCH')
+      return await response.json()})
+
 }
 
+
 function App() {
-  const {isLoading, isError, data = [] ,  refetch }= useQuery<User[]>({
-    queryKey: ['usuarios'],
-    queryFn: () => fetchUsers(1),
-  })
-
-  console.log('data...:',data)    
-  console.log('usuarios...:',users)
-
-
+  const [users,setUsers]=useState<User[]>([])   
   const [colorGrid,setColorGrid]=useState(false)
   const [sorting,setSorting]=useState<SortBay>(SortBay.NONE)
+  const originalUsers= useRef<User[]>([])
   const [filtraPais,setFiltraPais]=useState<string|null>(null)
-
+  const [loading,setLoading]=useState(false)
+  const [error,setError]=useState(false)
+  const [pagina,setPagina]=useState(1)
 
   const toggleColor = () =>{
     setColorGrid(!colorGrid)
@@ -35,12 +30,30 @@ function App() {
     const newSortingValue = sorting===SortBay.NONE ? SortBay.COUNTRY : SortBay.NONE
     setSorting(newSortingValue)
   }
-  const eliminarUsuario = () => {
-  //  const usuariosFiltradosAeliminar = users.filter(user=>user.email!==email)
-  //  setUsers(usuariosFiltradosAeliminar)
+  useEffect(()=>{
+    setLoading(true)
+    setError(false)
+    fetchUsers(pagina)
+  	.then(response=>{
+      setUsers(prevUsers=>{
+        const newUsuarios = prevUsers.concat(response.results)
+        originalUsers.current=newUsuarios
+        return newUsuarios
+      })})
+		.catch(err=>{
+		  console.error(err)
+      setError(true)
+    })
+   .finally(()=>setLoading(false))
+ 
+  }, [pagina])
+
+  const eliminarUsuario = (email:string) => {
+    const usuariosFiltradosAeliminar = users.filter(user=>user.email!==email)
+    setUsers(usuariosFiltradosAeliminar)
   }
   const setearEstadoInicial = () =>{
-    refetch()
+    setUsers(originalUsers.current)
   }
   
   const usuariosFiltrados = useMemo(()=>{
@@ -87,21 +100,19 @@ function App() {
         />
       </header>
       <main>
-        {users.length > 0 && !isLoading && !isError &&  
+        {users.length > 0 && !loading && !error &&  
         <>
           <UsersList  changeSortBay={changeSortBay} eliminarUsuario={eliminarUsuario} colorGrid={colorGrid} usuarios={usersOrdenado} />
-          <button onClick={()=>{fetchNextPage()}}>
+          <button onClick={()=>{setPagina(pagina+1)}}>
             Cargar más resultados
           </button>
         </>
         }
-        {isLoading && <p>Cargando...</p>}
-        {isError && <p>Error en la carga {isError} </p>}
-        {users.length > 0 && !isLoading && !isError && <p>No hay usuarios</p>}
+        {loading && <p>Cargando...</p>}
+        {error && <p>Error en la carga {error} </p>}
+        {users.length === 0 && !loading && !error && <p>No hay usuarios</p>}
       </main>
     </div>
   );
 }
 export default App;
-
-
